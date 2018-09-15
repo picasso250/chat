@@ -29,7 +29,7 @@ $(function(){
             for (let i = 0; i < msg_lst.length; i++) {
                 const msg = msg_lst[i];
                 var li = $("<li></li>").append($("<span></span>").text(msg.name))
-                    .append("<span>:</span>").append($("<span></span>").text(msg.msg));
+                    .append("<span>: </span>").append($("<span></span>").text(msg.msg));
                 $('#chatList').append(li);
             }
             var _last_id = ret.last_id;

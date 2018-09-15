@@ -37,7 +37,7 @@ function action_send_msg(){
     $name = trim($_POST['name']);
 
     $_SESSION['name'] = $name;
-    
+
     $stmt=$db->prepare("INSERT into chat (group_id,`name`,msg,created)values(?,?,?,now())");
     $stmt->execute([$_POST['group_id'],$name,trim($_POST['msg'])]);
 }
@@ -52,12 +52,11 @@ function action_pull_msg(){
     $asc = $last_id == "" ? "DESC" : "ASC";
     $sql = "SELECT * from chat where group_id=? $where order by id $asc limit 10";
     $stmt = $db->prepare($sql);
-    $stmt->execute($para);
-    $data = $stmt->fetchAll(Pdo::FETCH_ASSOC)?:[];
-    if (!$data) {
-        sleep(1);
+    for ($i=0; $i < 10; $i++) {
         $stmt->execute($para);
         $data = $stmt->fetchAll(Pdo::FETCH_ASSOC)?:[];
+        if ($data) break;
+        usleep(100*1000);
     }
     if ($last_id=="")
         $data = array_reverse($data);
