@@ -15,7 +15,7 @@
     <form action="?a=send_msg" >
         <input type="hidden" name="group_id" value="<?=htmlentities($id)?>">
         <input name="name" placeholder="你的名字" value="<?=isset($_SESSION['name'])?htmlentities($_SESSION['name']):'' ?>">
-        <input name="msg" placeholder="你说">
+        <input name="msg" id="msgBox" placeholder="你说">
         <input type="submit" value="发送">
     </form>
 </div>
@@ -27,6 +27,7 @@ $(function(){
         $.post("?a=send_msg", data, function (ret) {
             // do nothing
         });
+        $('#msgBox').val('');
     });
     var last_id="";
     pull_msg();
