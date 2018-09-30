@@ -1,5 +1,13 @@
+<style>
+#backToHome{
+    padding: 0.5em;
+    display: block;
+}
+</style>
 <script src="/jquery-3.3.1.min.js"></script>
+
 <div>
+    <a id="backToHome" href="/">回首页</a>
     <h1>#<?=htmlentities($id)?> <?=htmlentities($g['name']?:'')?></h1>
     <ul id="chatList">
 
