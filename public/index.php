@@ -3,13 +3,19 @@
 define('ROOT', dirname(__DIR__));
 define('ROOT_VIEW', ROOT.'/view');
 
+require dirname(__DIR__).'/lib.php';
+
 // env
-$env=parse_ini_file(ROOT."/.env");
-foreach ($env as $key => $value) {
-    $_ENV[$key] = $value;
-}
+dot_env();
 
 session_start();
+
+// db service
+s::db(function() {
+    $db =new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
+    $db->setAttribute(Pdo::ATTR_EMULATE_PREPARES, false);
+    return $db;
+});
 
 $action = isset($_GET['a'])?$_GET['a']:'index';
 $func = "action_$action";
@@ -23,13 +29,27 @@ function action_index(){
     include ROOT_VIEW."/layout.php";
 }
 function action_group(){
+    if (isset($_GET['name'])) {
+        $name = trim($_GET['name']);
+        $g = db::fetch("SELECT *from chat_room where `name`=? limit 1", [$name]);
+        $id = $g['id'];
+        if (!$g) {
+            $sql = "INSERT into chat_room (`name`,created)values(?,now()) ON DUPLICATE KEY UPDATE `name`=?";
+            db::execute($sql, [$name, $name]);
+            $db=s::db();
+            $id = $db->lastInsertId();
+        }
+        header("location: ?a=group&id=$id");
+        exit;
+    }
     if (!isset($_GET['id']))die("no id");
     $id = $_GET['id'];
+    $g = db::fetch("SELECT *from chat_room where `id`=? limit 1", [$id]);
     $_inner_ = ROOT_VIEW."/group.php";
     include ROOT_VIEW."/layout.php";
 }
 function action_send_msg(){
-    $db=get_db();
+    $db=s::db();
     if(!isset($_POST['name']))die("no name");
     if(!isset($_POST['msg']))die("no msg");
     if(!isset($_POST['group_id']))die("no group_id");
@@ -42,7 +62,7 @@ function action_send_msg(){
     $stmt->execute([$_POST['group_id'],$name,trim($_POST['msg'])]);
 }
 function action_pull_msg(){
-    $db=get_db();
+    $db=s::db();
     if(!isset($_GET['group_id']))die("no group_id");
     if(!isset($_GET['last_id']))die("no last_id");
     $group_id = $_GET['group_id'];
@@ -62,14 +82,4 @@ function action_pull_msg(){
         $data = array_reverse($data);
     $last_id = $data?$data[count($data)-1]['id']:'';
     echo json_encode(compact('data', 'last_id'));
-}
-
-// lib ==============
-function get_db(){
-    static $db;
-    if (!$db){
-        $db =new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
-        $db->setAttribute(Pdo::ATTR_EMULATE_PREPARES, false);
-    }
-    return $db;
 }

@@ -1,6 +1,6 @@
-<script src="/jquery-3.2.1.min.js"></script>
+<script src="/jquery-3.3.1.min.js"></script>
 <div>
-    <h1>群 <?=htmlentities($id)?></h1>
+    <h1>#<?=htmlentities($id)?> <?=htmlentities($g['name']?:'')?></h1>
     <ul id="chatList">
 
     </ul>
