@@ -15,6 +15,22 @@
     height: 3rem;
     cursor: pointer;
 }
+
+li {
+    list-style: none;
+    margin: 4px 0;
+}
+ul {
+    padding: 0;
+}
+.msg {
+    display: block;
+    /* border: 1px solid grey; */
+}
+.name, .colon {
+    color: grey;
+    font-size: small;
+}
 </style>
 <script src="/jquery-3.3.1.min.js"></script>
 
@@ -69,8 +85,8 @@ $(function(){
             var msg_lst = ret.data;
             for (let i = 0; i < msg_lst.length; i++) {
                 const msg = msg_lst[i];
-                var li = $("<li></li>").append($("<span></span>").text(msg.name))
-                    .append("<span>: </span>").append($("<span></span>").text(msg.msg));
+                var li = $("<li></li>").append($("<span class='name'></span>").text(msg.name))
+                    .append($("<span class='msg'></span>").text(msg.msg));
                 $('#chatList').append(li);
             }
             var _last_id = ret.last_id;
