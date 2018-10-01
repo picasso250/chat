@@ -11,8 +11,8 @@
     background-image: url(/mao.jpg);
     background-size: contain;
     display: inline-block;
-    width: 3rem;
-    height: 3rem;
+    width: 2em;
+    height: 2em;
     cursor: pointer;
 }
 
@@ -22,6 +22,8 @@ li {
 }
 ul {
     padding: 0;
+    margin: 0;
+    margin-bottom: 3em;
 }
 .msg {
     display: block;
@@ -30,6 +32,15 @@ ul {
 .name, .colon {
     color: grey;
     font-size: small;
+}
+#sendFormWrap{
+    height:2em;
+    position: fixed;
+    bottom: 0;
+    background: white;
+}
+input[name="name"] {
+    width: 4em;
 }
 </style>
 <script src="/jquery-3.3.1.min.js"></script>
@@ -40,17 +51,19 @@ ul {
     <ul id="chatList">
 
     </ul>
-    <form action="?a=send_msg" >
-        <input type="hidden" name="group_id" value="<?=htmlentities($id)?>">
-        <?php if(isset($_SESSION['name']) && $_SESSION['name']): ?>
-            <span><?=htmlspecialchars($_SESSION['name'])?></span>
-            <input type="hidden" name="name" value="<?=htmlentities($_SESSION['name'])?>">
-        <?php else: ?>
-            <input type="text" name="name" placeholder="你的名字" value="">
-        <?php endif ?>
-        <input name="msg" id="msgBox" placeholder="你说">
-        <input type="submit" value="发送">
-    </form>
+    <div id="sendFormWrap">
+        <form action="?a=send_msg" >
+            <input type="hidden" name="group_id" value="<?=htmlentities($id)?>">
+            <?php if(isset($_SESSION['name']) && $_SESSION['name']): ?>
+                <span><?=htmlspecialchars($_SESSION['name'])?></span>
+                <input type="hidden" name="name" value="<?=htmlentities($_SESSION['name'])?>">
+            <?php else: ?>
+                <input type="text" name="name" placeholder="你的名字" value="">
+            <?php endif ?>
+            <input name="msg" id="msgBox" placeholder="你说">
+            <input type="submit" value="发送">
+        </form>
+    </div>
 </div>
 <script>
 $(function(){
@@ -89,6 +102,11 @@ $(function(){
                     .append($("<span class='msg'></span>").text(msg.msg));
                 $('#chatList').append(li);
             }
+
+            // 卷到底部
+            if (msg_lst.length > 0)
+                $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+
             var _last_id = ret.last_id;
             if (_last_id!=="")
                 last_id=_last_id;
