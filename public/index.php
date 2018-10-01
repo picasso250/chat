@@ -60,6 +60,7 @@ function action_send_msg(){
 
     $stmt=$db->prepare("INSERT into chat (group_id,`name`,msg,created)values(?,?,?,now())");
     $stmt->execute([$_POST['group_id'],$name,trim($_POST['msg'])]);
+    echo $db->lastInsertId();
 }
 function action_pull_msg(){
     $db=s::db();
