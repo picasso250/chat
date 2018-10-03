@@ -29,9 +29,10 @@ ul {
     display: block;
     /* border: 1px solid grey; */
 }
-.name, .colon {
+.name, .colon, .time {
     color: grey;
     font-size: small;
+    padding-right: 5px;
 }
 #sendFormWrap{
     height:2em;
@@ -91,6 +92,7 @@ $(function(){
         }
     });
     var last_id="";
+    var old_time = '';
     pull_msg();
     function pull_msg() {
         $.get("?a=pull_msg", {last_id:last_id,group_id:$("[name=group_id]").val()},function (ret) {
@@ -98,9 +100,13 @@ $(function(){
             var msg_lst = ret.data;
             for (let i = 0; i < msg_lst.length; i++) {
                 const msg = msg_lst[i];
-                var li = $("<li></li>").append($("<span class='name'></span>").text(msg.name))
-                    .append($("<span class='msg'></span>").text(msg.msg));
+                var created = msg.created.substr(11, 5);
+                var li = $("<li></li>").append($("<span class='name'></span>").text(msg.name));
+                if (old_time!==created)
+                    li.append($("<span class='time'></span>").text(created));
+                li.append($("<span class='msg'></span>").text(msg.msg));
                 $('#chatList').append(li);
+                old_time = created;
             }
 
             // 卷到底部
