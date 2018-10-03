@@ -70,6 +70,23 @@ input[name="name"] {
 $(function(){
     $('form').submit(function (e) {
         e.preventDefault();
+
+        // 固定名字
+        var nameBox = $('[name=name]');
+        var name = nameBox.val();
+        if (name=='') {
+            alert("请务必输入一个名字");
+            return;
+        }
+        if (name && nameBox.attr('type') == 'text') {
+            nameBox.attr('type', 'hidden');
+            nameBox.after($("<span></span>").text(name));
+        }
+
+        if ($('#msgBox').val()==='') {
+            return;
+        }
+
         var data = $(this).serialize();
         $.post("?a=send_msg", data, function (ret) {
             // do nothing
@@ -77,14 +94,6 @@ $(function(){
 
         // 清空
         $('#msgBox').val('');
-
-        // 固定名字
-        var nameBox = $('[name=name]');
-        var name = nameBox.val();
-        if (name && nameBox.attr('type') == 'text') {
-            nameBox.attr('type', 'hidden');
-            nameBox.after($("<span></span>").text(name));
-        }
 
         // 彩蛋
         if (name=='小王子') {
