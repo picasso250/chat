@@ -26,6 +26,7 @@ $func();
 
 function action_index(){
     $_inner_ = ROOT_VIEW."/index.php";
+    $rooms = db::fetchAll("SELECT*from chat_room where id > 3 limit 100");
     include ROOT_VIEW."/layout.php";
 }
 function action_group(){

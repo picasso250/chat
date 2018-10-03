@@ -1,16 +1,21 @@
 <div>
     <form action="?">
         <input type="hidden" name="a" value="group">
-        请输入群号(数字)<br>
-        <input name="id"><br>
-        <input type="submit" value="带我去">
-        
-    </form>
-    <hr>
-    <form action="?">
-        <input type="hidden" name="a" value="group">
-        或者输入群名字<br>
+        输入群名字<br>
         <input name="name"><br>
         <input type="submit" value="带我去">
     </form>
+</div>
+
+<hr>
+
+<div>
+    <div>聊天室列表：</div>
+    <ul>
+        <?php foreach ($rooms as $key => $room): ?>
+        <li>
+            <a href="?<?= htmlentities(http_build_query(['a' => 'group', 'id' => $room['id']])) ?>">#<?= htmlspecialchars($room['id']) ?> <?= htmlspecialchars($room['name']) ?></a>
+        </li>
+        <?php endforeach ?>
+    </ul>
 </div>
