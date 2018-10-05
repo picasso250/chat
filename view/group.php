@@ -109,7 +109,10 @@ $(function(){
             var msg_lst = ret.data;
             for (let i = 0; i < msg_lst.length; i++) {
                 const msg = msg_lst[i];
-                var created = msg.created.substr(11, 5);
+                var date = new Date(msg.created);
+                var hours = date.getHours();
+                var minutes = date.getMinutes();
+                var created = hours+":"+minutes;
                 var li = $("<li></li>").append($("<span class='name'></span>").text(msg.name));
                 if (old_time!==created)
                     li.append($("<span class='time'></span>").text(created));

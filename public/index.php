@@ -12,7 +12,7 @@ session_start();
 
 // db service
 s::db(function() {
-    $db =new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
+    $db = new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
     $db->setAttribute(Pdo::ATTR_EMULATE_PREPARES, false);
     return $db;
 });
@@ -26,7 +26,7 @@ $func();
 
 function action_index(){
     $_inner_ = ROOT_VIEW."/index.php";
-    $rooms = db::fetchAll("SELECT*from chat_room where id > 3 limit 100");
+    $rooms = db::fetchAll("SELECT * from chat_room where id > 3 limit 100");
     include ROOT_VIEW."/layout.php";
 }
 function action_group(){
@@ -52,7 +52,7 @@ function action_group(){
 function action_send_msg(){
     $db=s::db();
     if(!isset($_POST['name']))die("no name");
-    if(!isset($_POST['msg']))die("no msg");
+    if(!isset($_POST['msg'])) die("no msg");
     if(!isset($_POST['group_id']))die("no group_id");
 
     $name = trim($_POST['name']);
@@ -70,18 +70,22 @@ function action_pull_msg(){
     $group_id = $_GET['group_id'];
     $last_id = $_GET['last_id'];
     $where = $last_id == "" ? "" : "AND id>?";
-    $para = $last_id == "" ? [$group_id] : [$group_id,$last_id];
-    $asc = $last_id == "" ? "DESC" : "ASC";
-    $sql = "SELECT * from chat where group_id=? $where order by id $asc limit 10";
+    $para  = $last_id == "" ? [$group_id] : [$group_id,$last_id];
+    $asc   = $last_id == "" ? "DESC" : "ASC";
+    $sql = "SELECT * from chat where group_id=? $where ORDER BY id $asc limit 10";
     $stmt = $db->prepare($sql);
     for ($i=0; $i < 10; $i++) {
         $stmt->execute($para);
         $data = $stmt->fetchAll(Pdo::FETCH_ASSOC)?:[];
         if ($data) break;
-        usleep(100*1000);
+        usleep(100*1000); // 100ms
     }
     if ($last_id=="")
         $data = array_reverse($data);
+    $data = array_map(function($e){
+        $e['created'] = date('c', strtotime($e['created']));
+        return $e;
+    }, $data);
     $last_id = $data?$data[count($data)-1]['id']:'';
     echo json_encode(compact('data', 'last_id'));
 }
