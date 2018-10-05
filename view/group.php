@@ -101,34 +101,51 @@ $(function(){
         }
     });
     var last_id="";
-    var old_time = '';
-    pull_msg();
-    function pull_msg() {
-        $.get("?a=pull_msg", {last_id:last_id,group_id:$("[name=group_id]").val()},function (ret) {
-            setTimeout(pull_msg, 100);
-            var msg_lst = ret.data;
-            for (let i = 0; i < msg_lst.length; i++) {
-                const msg = msg_lst[i];
-                var date = new Date(msg.created);
-                var hours = date.getHours();
-                var minutes = date.getMinutes();
-                var created = hours+":"+minutes;
-                var li = $("<li></li>").append($("<span class='name'></span>").text(msg.name));
-                if (old_time!==created)
-                    li.append($("<span class='time'></span>").text(created));
-                li.append($("<span class='msg'></span>").text(msg.msg));
-                $('#chatList').append(li);
-                old_time = created;
-            }
+    window.old_time = '';
 
-            // 卷到底部
-            if (msg_lst.length > 0)
-                $("html, body").animate({ scrollTop: $(document).height() }, 1000);
-
-            var _last_id = ret.last_id;
-            if (_last_id!=="")
-                last_id=_last_id;
-        },"json");
+    function appendMsgList(msg_lst){
+        for (let i = 0; i < msg_lst.length; i++) {
+            const msg = msg_lst[i];
+            appendMsg(msg, old_time);
+            window.old_time = created;
+        }
     }
+    function appendMsg(msg){
+        var date = new Date(msg.created);
+        var hours = date.getHours();
+        var minutes = date.getMinutes();
+        var created = hours+":"+minutes;
+        var li = $("<li></li>").append($("<span class='name'></span>").text(msg.name));
+        if (window.old_time!==created)
+            li.append($("<span class='time'></span>").text(created));
+        li.append($("<span class='msg'></span>").text(msg.msg));
+        $('#chatList').append(li);
+    }
+
+    // 创建一个Socket实例
+    var socket = new WebSocket('ws://'+location.hostname+':8080'); 
+
+    // 打开Socket 
+    socket.onopen = function(event) {
+
+        // 发送一个初始化消息
+        socket.send('<?= $id ?>');
+
+        // 监听消息
+        socket.onmessage = function(event) { 
+            var msg = $.parseJSON(event.data);
+            appendMsg(msg);
+            // 卷到底部
+            $("html, body").animate({ scrollTop: $(document).height() }, 1000);
+        }; 
+
+        // 监听Socket的关闭
+        socket.onclose = function(event) { 
+            console.log('Client notified socket has closed',event); 
+        }; 
+
+        // 关闭Socket.... 
+        //socket.close() 
+    };
 });
 </script>
