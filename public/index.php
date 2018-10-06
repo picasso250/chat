@@ -14,6 +14,7 @@ session_start();
 s::db(function() {
     $db = new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
     $db->setAttribute(Pdo::ATTR_EMULATE_PREPARES, false);
+    $db->setAttribute(Pdo::ATTR_DEFAULT_FETCH_MODE, pdo::FETCH_ASSOC);
     return $db;
 });
 
@@ -27,6 +28,10 @@ $func();
 function action_index(){
     $_inner_ = ROOT_VIEW."/index.php";
     $rooms = db::fetchAll("SELECT * from chat_room where id > 3 limit 100");
+    if(isset($_GET['api'])) {
+        echo json_encode($rooms);
+        exit();
+    }
     include ROOT_VIEW."/layout.php";
 }
 function action_group(){
@@ -51,16 +56,27 @@ function action_group(){
 }
 function action_send_msg(){
     $db=s::db();
-    if(!isset($_POST['name']))die("no name");
-    if(!isset($_POST['msg'])) die("no msg");
-    if(!isset($_POST['group_id']))die("no group_id");
-
-    $name = trim($_POST['name']);
+    if (isset($_GET['jsonBody'])) {
+        $args = json_decode(file_get_contents('php://input'), true);
+        if(!isset($args['name']))die("no name");
+        if(!isset($args['msg'])) die("no msg");
+        if(!isset($args['group_id']))die("no group_id");
+        $name = trim($args['name']);
+        $msg = trim($args['msg']);
+        $group_id = trim($args['group_id']);
+    } else {
+        if(!isset($_POST['name']))die("no name");
+        if(!isset($_POST['msg'])) die("no msg");
+        if(!isset($_POST['group_id']))die("no group_id");
+        $name = trim($_POST['name']);
+        $msg = trim($_POST['msg']);
+        $group_id = trim($_POST['group_id']);
+    }
 
     $_SESSION['name'] = $name;
 
     $stmt=$db->prepare("INSERT into chat (group_id,`name`,msg,created)values(?,?,?,now())");
-    $stmt->execute([$_POST['group_id'],$name,trim($_POST['msg'])]);
+    $stmt->execute([$group_id,$name,trim($msg)]);
     echo $db->lastInsertId();
 }
 function action_pull_msg(){
