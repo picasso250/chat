@@ -14,7 +14,7 @@
     <ul>
         <?php foreach ($rooms as $key => $room): ?>
         <li>
-            <a href="?<?= htmlentities(http_build_query(['a' => 'group', 'id' => $room['id']])) ?>">#<?= htmlspecialchars($room['id']) ?> <?= htmlspecialchars($room['name']) ?></a>
+            <a href="?<?php echo htmlentities(http_build_query(['a' => 'group', 'id' => $room['id']])) ?>">#<?php echo htmlspecialchars($room['id']) ?> <?php echo htmlspecialchars($room['name']) ?></a>
         </li>
         <?php endforeach ?>
     </ul>

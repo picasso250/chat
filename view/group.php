@@ -48,16 +48,16 @@ input[name="name"] {
 
 <div>
     <a id="backToHome" href="/">回首页</a>
-    <h1>#<?=htmlentities($id)?> <?=htmlentities($g['name']?:'')?></h1>
+    <h1>#<?php echo htmlentities($id)?> <?php echo htmlentities($g['name']?:'')?></h1>
     <ul id="chatList">
 
     </ul>
     <div id="sendFormWrap">
         <form action="?a=send_msg" >
-            <input type="hidden" name="group_id" value="<?=htmlentities($id)?>">
-            <?php if(isset($_SESSION['name']) && $_SESSION['name']): ?>
-                <span><?=htmlspecialchars($_SESSION['name'])?></span>
-                <input type="hidden" name="name" value="<?=htmlentities($_SESSION['name'])?>">
+            <input type="hidden" name="group_id" value="<?php echo htmlentities($id)?>">
+            <?php if(isset($_SESSION['name']) && $_SESSION['name']) : ?>
+                <span><?php echo htmlspecialchars($_SESSION['name'])?></span>
+                <input type="hidden" name="name" value="<?php echo htmlentities($_SESSION['name'])?>">
             <?php else: ?>
                 <input type="text" name="name" placeholder="你的名字" value="">
             <?php endif ?>
@@ -129,7 +129,7 @@ $(function(){
     socket.onopen = function(event) {
 
         // 发送一个初始化消息
-        socket.send('<?= $id ?>');
+        socket.send('<?php echo $id ?>');
 
         // 监听消息
         socket.onmessage = function(event) { 
