@@ -11,12 +11,14 @@ if (!dotEnv()) die("no .env file");
 session_start();
 
 // db service
-Sv::db(function() {
-    $db = new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
-    $db->setAttribute(Pdo::ATTR_EMULATE_PREPARES, false);
-    $db->setAttribute(Pdo::ATTR_DEFAULT_FETCH_MODE, pdo::FETCH_ASSOC);
-    return $db;
-});
+Sv::db(
+    function () {
+        $db = new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
+        $db->setAttribute(Pdo::ATTR_EMULATE_PREPARES, false);
+        $db->setAttribute(Pdo::ATTR_DEFAULT_FETCH_MODE, pdo::FETCH_ASSOC);
+        return $db;
+    }
+);
 
 Res::$layout_tpl=ROOT_VIEW."/layout.php";
 
@@ -30,15 +32,17 @@ if (is_string($r)) {
     echo $r;
 }
 
-function action_index(){
+function action_index()
+{
     $rooms = Db::fetchAll("SELECT * from chat_room where id > 3 limit 100");
     if(isset($_GET['api'])) {
         echo json_encode($rooms);
         return;
     }
-    Res::render_with_layout(['content'=>ROOT_VIEW."/index.php"], compact('rooms'));
+    Res::renderWithLayout(['content'=>ROOT_VIEW."/index.php"], compact('rooms'));
 }
-function action_group(){
+function action_group()
+{
     if (isset($_GET['name'])) {
         $name = trim($_GET['name']);
         $g = Db::fetch("SELECT *from chat_room where `name`=? limit 1", [$name]);
@@ -55,9 +59,10 @@ function action_group(){
     if (!isset($_GET['id'])) return("no id");
     $id = $_GET['id'];
     $g = Db::fetch("SELECT *from chat_room where `id`=? limit 1", [$id]);
-    Res::render_with_layout(['content'=>ROOT_VIEW."/group.php"], compact('id', 'g'));
+    Res::renderWithLayout(['content'=>ROOT_VIEW."/group.php"], compact('id', 'g'));
 }
-function action_send_msg(){
+function action_send_msg()
+{
     $db=Sv::db();
     if (isset($_GET['jsonBody'])) {
         $args = json_decode(file_get_contents('php://input'), true);
@@ -82,7 +87,8 @@ function action_send_msg(){
     $stmt->execute([$group_id,$name,trim($msg)]);
     echo $db->lastInsertId();
 }
-function action_pull_msg(){
+function action_pull_msg()
+{
     $db=Sv::db();
     if(!isset($_GET['group_id']))return("no group_id");
     if(!isset($_GET['last_id']))return("no last_id");
@@ -104,8 +110,8 @@ function action_pull_msg(){
 }
 
 /**
- * @param $last_id
- * @param $group_id
+ * @param  $last_id
+ * @param  $group_id
  * @return array
  */
 function build_sql($last_id, $group_id)
@@ -118,14 +124,16 @@ function build_sql($last_id, $group_id)
 }
 
 /**
- * @param $data
+ * @param  $data
  * @return array
  */
 function proc_data($data)
 {
-    $data = array_map(function ($e) {
-        $e['created'] = date('c', strtotime($e['created']));
-        return $e;
-    }, $data);
+    $data = array_map(
+        function ($e) {
+            $e['created'] = date('c', strtotime($e['created']));
+            return $e;
+        }, $data
+    );
     return $data;
 }
