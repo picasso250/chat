@@ -23,14 +23,17 @@ $func = "action_$action";
 if(!function_exists($func)) {
     die("no action");
 }
-$func();
+$r=$func();
+if (is_string($r)) {
+    echo $r;
+}
 
 function action_index(){
     $_inner_ = ROOT_VIEW."/index.php";
     $rooms = Db::fetchAll("SELECT * from chat_room where id > 3 limit 100");
     if(isset($_GET['api'])) {
         echo json_encode($rooms);
-        exit();
+        return;
     }
     include ROOT_VIEW."/layout.php";
 }
@@ -46,9 +49,9 @@ function action_group(){
             $id = $db->lastInsertId();
         }
         header("location: ?a=group&id=$id");
-        exit;
+        return;
     }
-    if (!isset($_GET['id']))die("no id");
+    if (!isset($_GET['id'])) return("no id");
     $id = $_GET['id'];
     $g = Db::fetch("SELECT *from chat_room where `id`=? limit 1", [$id]);
     $_inner_ = ROOT_VIEW."/group.php";
@@ -58,16 +61,16 @@ function action_send_msg(){
     $db=Sv::db();
     if (isset($_GET['jsonBody'])) {
         $args = json_decode(file_get_contents('php://input'), true);
-        if(!isset($args['name']))die("no name");
-        if(!isset($args['msg'])) die("no msg");
-        if(!isset($args['group_id']))die("no group_id");
+        if(!isset($args['name']))return ("no name");
+        if(!isset($args['msg'])) return ("no msg");
+        if(!isset($args['group_id']))return ("no group_id");
         $name = trim($args['name']);
         $msg = trim($args['msg']);
         $group_id = trim($args['group_id']);
     } else {
-        if(!isset($_POST['name']))die("no name");
-        if(!isset($_POST['msg'])) die("no msg");
-        if(!isset($_POST['group_id']))die("no group_id");
+        if(!isset($_POST['name']))return ("no name");
+        if(!isset($_POST['msg'])) return ("no msg");
+        if(!isset($_POST['group_id']))return ("no group_id");
         $name = trim($_POST['name']);
         $msg = trim($_POST['msg']);
         $group_id = trim($_POST['group_id']);
@@ -81,8 +84,8 @@ function action_send_msg(){
 }
 function action_pull_msg(){
     $db=Sv::db();
-    if(!isset($_GET['group_id']))die("no group_id");
-    if(!isset($_GET['last_id']))die("no last_id");
+    if(!isset($_GET['group_id']))return("no group_id");
+    if(!isset($_GET['last_id']))return("no last_id");
     $group_id = $_GET['group_id'];
     $last_id = $_GET['last_id'];
     $where = $last_id == "" ? "" : "AND id>?";
