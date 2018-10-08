@@ -8,7 +8,7 @@ require ROOT.'/lib.php';
 dot_env();
 
 // db service
-s::db(function() {
+sv::db(function() {
     $db = new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
     $db->setAttribute(Pdo::ATTR_EMULATE_PREPARES, false);
     return $db;
@@ -20,7 +20,7 @@ while ($line = fgets($stdin)) {
     break;
 }
 
-$db=s::db();
+$db=sv::db();
 
 // init
 $sql = "SELECT * from chat where group_id=? ORDER BY id DESC limit 10";

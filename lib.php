@@ -1,8 +1,10 @@
 <?php
 // magic class!
 
+// phpmd.phar lib.php text codesize,design,unusedcode
+
 // service, container, IoC
-class s {
+class sv {
     static $lazy;
     static $pool;
     static function __callStatic($name, $args){
@@ -10,7 +12,10 @@ class s {
         if ($value=== null){
             // get
             if(isset(self::$pool[$name]))return self::$pool[$name];
-            if(isset(self::$lazy[$name]))return self::$pool[$name]=(self::$lazy[$name])();
+            if(isset(self::$lazy[$name])) {
+                $f = self::$lazy[$name];
+                return self::$pool[$name]=$f();
+            }
             return null;
         } else {
             // set
@@ -22,16 +27,17 @@ class s {
 function dot_env($root=__DIR__){
     if (defined("ROOT")&&$root==="") $root=ROOT;
     $file="$root/.env";
-    if(!file_exists($file))die("no .env file");
+    if(!file_exists($file)) return false;
     $vars=parse_ini_file($file);
     foreach($vars as $k=>$v){
         $_ENV[$k]=$v;
     }
+    return true;
 }
 class db
 {
     static function execute($sql, $vars=[]) {
-        $db = s::db();
+        $db = sv::db();
         $stmt=$db->prepare($sql);
         $stmt->execute($vars);
         return $stmt;
