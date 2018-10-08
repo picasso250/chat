@@ -18,6 +18,8 @@ Sv::db(function() {
     return $db;
 });
 
+Res::$layout_tpl=ROOT_VIEW."/layout.php";
+
 $action = isset($_GET['a'])?$_GET['a']:'index';
 $func = "action_$action";
 if(!function_exists($func)) {
@@ -34,7 +36,7 @@ function action_index(){
         echo json_encode($rooms);
         return;
     }
-    Res::render_with_layout(ROOT_VIEW."/layout.php", ['content'=>ROOT_VIEW."/index.php"], compact('rooms'));
+    Res::render_with_layout(['content'=>ROOT_VIEW."/index.php"], compact('rooms'));
 }
 function action_group(){
     if (isset($_GET['name'])) {
@@ -53,7 +55,7 @@ function action_group(){
     if (!isset($_GET['id'])) return("no id");
     $id = $_GET['id'];
     $g = Db::fetch("SELECT *from chat_room where `id`=? limit 1", [$id]);
-    Res::render_with_layout(ROOT_VIEW."/layout.php", ['content'=>ROOT_VIEW."/group.php"], compact('id', 'g'));
+    Res::render_with_layout(['content'=>ROOT_VIEW."/group.php"], compact('id', 'g'));
 }
 function action_send_msg(){
     $db=Sv::db();

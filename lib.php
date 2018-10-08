@@ -136,12 +136,31 @@ class Db
     }
 }
 
+/**
+ * Response
+ *
+ * @category Class
+ * @package  GLOBAL
+ * @author   xiaochi <wxiaochi@qq.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://coding.net/u/picasso250/p/10x-programer/git
+ */
 class Res
 {
-    static function render_with_layout($layout_tpl, $inner_tpl_list, $data = [])
+    static $layout_tpl;
+
+    /**
+     * Render php template with layout
+     *
+     * @param string $inner_tpl_table table of template
+     * @param array  $data            vars
+     *
+     * @return null
+     */
+    static function renderWithLayout($inner_tpl_table, $data = [])
     {
-        $data['_inner_tpl_table'] = $inner_tpl_list;
+        $data['_inner_tpl_table'] = $inner_tpl_table;
         extract($data);
-        include $layout_tpl;
+        include self::$layout_tpl;
     }
 }
