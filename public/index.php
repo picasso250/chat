@@ -1,5 +1,17 @@
 <?php
 
+/**
+ * Magic class!
+ * phpmd.phar . text codesize,design,unusedcode
+ * phpcs . -n
+ *
+ * @category File
+ * @package  GLOBAL
+ * @author   xiaochi <wxiaochi@qq.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://coding.net/u/picasso250/p/10x-programer/git
+ */
+
 define('ROOT', dirname(__DIR__));
 define('ROOT_VIEW', ROOT.'/view');
 
@@ -23,8 +35,8 @@ Sv::db(
 Res::$layout_tpl=ROOT_VIEW."/layout.php";
 
 $action = isset($_GET['a'])?$_GET['a']:'index';
-$func = "action_$action";
-if(!function_exists($func)) {
+$func = "Action_$action";
+if (!function_exists($func)) {
     die("no action");
 }
 $r=$func();
@@ -32,16 +44,27 @@ if (is_string($r)) {
     echo $r;
 }
 
-function action_index()
+/**
+ * Action index
+ *
+ * @return null
+ */
+function Action_index()
 {
     $rooms = Db::fetchAll("SELECT * from chat_room where id > 3 limit 100");
-    if(isset($_GET['api'])) {
+    if (isset($_GET['api'])) {
         echo json_encode($rooms);
         return;
     }
     Res::renderWithLayout(['content'=>ROOT_VIEW."/index.php"], compact('rooms'));
 }
-function action_group()
+
+/**
+ * Action group
+ *
+ * @return null
+ */
+function Action_group()
 {
     if (isset($_GET['name'])) {
         $name = trim($_GET['name']);
@@ -61,7 +84,13 @@ function action_group()
     $g = Db::fetch("SELECT *from chat_room where `id`=? limit 1", [$id]);
     Res::renderWithLayout(['content'=>ROOT_VIEW."/group.php"], compact('id', 'g'));
 }
-function action_send_msg()
+
+/**
+ * Action Action_Send_msg
+ *
+ * @return null
+ */
+function Action_Send_msg()
 {
     $db=Sv::db();
     if (isset($_GET['jsonBody'])) {
@@ -87,14 +116,20 @@ function action_send_msg()
     $stmt->execute([$group_id,$name,trim($msg)]);
     echo $db->lastInsertId();
 }
-function action_pull_msg()
+
+/**
+ * Action Action_Pull_msg
+ *
+ * @return null
+ */
+function Action_Pull_msg()
 {
     $db=Sv::db();
-    if(!isset($_GET['group_id']))return("no group_id");
-    if(!isset($_GET['last_id']))return("no last_id");
+    if (!isset($_GET['group_id']))return("no group_id");
+    if (!isset($_GET['last_id']))return("no last_id");
     $group_id = $_GET['group_id'];
     $last_id = $_GET['last_id'];
-    list($para, $sql) = build_sql($last_id, $group_id);
+    list($para, $sql) = Build_sql($last_id, $group_id);
     $stmt = $db->prepare($sql);
     for ($i=0; $i < 10; $i++) {
         $stmt->execute($para);
@@ -104,17 +139,20 @@ function action_pull_msg()
     }
     if ($last_id=="")
         $data = array_reverse($data);
-    $data = proc_data($data);
+    $data = Proc_data($data);
     $last_id = $data?$data[count($data)-1]['id']:'';
     echo json_encode(compact('data', 'last_id'));
 }
 
 /**
- * @param  $last_id
- * @param  $group_id
+ * Build pull msg sql
+ *
+ * @param string $last_id  id of msg, can be empty
+ * @param string $group_id room id
+ *
  * @return array
  */
-function build_sql($last_id, $group_id)
+function Build_sql($last_id, $group_id)
 {
     $where = $last_id == "" ? "" : "AND id>?";
     $para = $last_id == "" ? [$group_id] : [$group_id, $last_id];
@@ -124,10 +162,13 @@ function build_sql($last_id, $group_id)
 }
 
 /**
- * @param  $data
+ * Process message list
+ *
+ * @param array $data message list
+ *
  * @return array
  */
-function proc_data($data)
+function Proc_data($data)
 {
     $data = array_map(
         function ($e) {
