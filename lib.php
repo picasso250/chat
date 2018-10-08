@@ -1,18 +1,46 @@
 <?php
-// magic class!
+/**
+ * Magic class!
+ * phpmd.phar lib.php text codesize,design,unusedcode
+ * phpcs lib.php -n
+ *
+ * @category Class_And_Function
+ * @package  GLOBAL
+ * @author   xiaochi <wxiaochi@qq.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://coding.net/u/picasso250/p/10x-programer/git
+ */
 
-// phpmd.phar lib.php text codesize,design,unusedcode
+/**
+ * Service, container, IoC
+ *
+ * @category Class
+ * @package  GLOBAL
+ * @author   xiaochi <wxiaochi@qq.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://coding.net/u/picasso250/p/10x-programer/git
+ */
+class Sv
+{
 
-// service, container, IoC
-class sv {
     static $lazy;
     static $pool;
-    static function __callStatic($name, $args){
+
+    /**
+     * Get or set service
+     *
+     * @param string $name name of service
+     * @param array  $args value or function
+     *
+     * @return null
+     */
+    static function __callStatic($name, $args)
+    {
         $value = isset($args[0]) ? $args[0] : null;
-        if ($value=== null){
+        if ($value=== null) {
             // get
-            if(isset(self::$pool[$name]))return self::$pool[$name];
-            if(isset(self::$lazy[$name])) {
+            if (isset(self::$pool[$name]))return self::$pool[$name];
+            if (isset(self::$lazy[$name])) {
                 $f = self::$lazy[$name];
                 return self::$pool[$name]=$f();
             }
@@ -24,30 +52,84 @@ class sv {
         }
     }
 }
-function dot_env($root=__DIR__){
+
+/**
+ * Load env to $_ENV
+ *
+ * @param string $root dir
+ *
+ * @category Function
+ * @package  GLOBAL
+ * @author   xiaochi <wxiaochi@qq.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://coding.net/u/picasso250/p/10x-programer/git
+ *
+ * @return bool
+ */
+function dotEnv($root=__DIR__)
+{
     if (defined("ROOT")&&$root==="") $root=ROOT;
     $file="$root/.env";
-    if(!file_exists($file)) return false;
+    if (!file_exists($file)) return false;
     $vars=parse_ini_file($file);
-    foreach($vars as $k=>$v){
+    foreach ($vars as $k=>$v) {
         $_ENV[$k]=$v;
     }
     return true;
 }
-class db
+
+/**
+ * Database
+ *
+ * @category Class
+ * @package  GLOBAL
+ * @author   xiaochi <wxiaochi@qq.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://coding.net/u/picasso250/p/10x-programer/git
+ */
+class Db
 {
-    static function execute($sql, $vars=[]) {
-        $db = sv::db();
+    /**
+     * Execute a sql
+     *
+     * @param string $sql  sql
+     * @param array  $vars binding vars
+     *
+     * @return mixed
+     */
+    static function execute($sql, $vars=[])
+    {
+        $db = Sv::db();
         $stmt=$db->prepare($sql);
         $stmt->execute($vars);
         return $stmt;
     }
-    static function fetchAll($sql, $vars=[]) {
+
+    /**
+     * Execute a sql and fetch rows
+     *
+     * @param string $sql  sql
+     * @param array  $vars binding vars
+     *
+     * @return mixed
+     */
+    static function fetchAll($sql, $vars=[])
+    {
         $stmt = self::execute($sql, $vars);
         $a = $stmt->fetchAll();
         return $a ? $a : [];
     }
-    static function fetch($sql, $vars=[]) {
+
+    /**
+     * Execute a sql and fetch one
+     *
+     * @param string $sql  sql
+     * @param array  $vars binding vars
+     *
+     * @return mixed
+     */
+    static function fetch($sql, $vars=[])
+    {
         $stmt = self::execute($sql, $vars);
         $a = $stmt->fetch();
         return $a;
