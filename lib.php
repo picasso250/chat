@@ -152,8 +152,8 @@ class Res
     /**
      * Render php template with layout
      *
-     * @param string $inner_tpl_table table of template
-     * @param array  $data            vars
+     * @param array $inner_tpl_table table of template
+     * @param array $data            vars
      *
      * @return null
      */
