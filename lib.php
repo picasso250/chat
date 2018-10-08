@@ -19,6 +19,7 @@
  * @author   xiaochi <wxiaochi@qq.com>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     https://coding.net/u/picasso250/p/10x-programer/git
+ * @method   static Pdo db(callable $c=null) get or set db
  */
 class Sv
 {
