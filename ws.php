@@ -1,5 +1,15 @@
 <?php
 
+/**
+ * Websocket server
+ *
+ * @category File
+ * @package  GLOBAL
+ * @author   xiaochi <wxiaochi@qq.com>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     https://coding.net/u/picasso250/p/10x-programer/git
+ */
+
 define('ROOT', (__DIR__));
 
 require ROOT.'/lib.php';
@@ -8,11 +18,13 @@ require ROOT.'/lib.php';
 dotEnv();
 
 // db service
-Sv::db(function() {
-    $db = new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
-    $db->setAttribute(Pdo::ATTR_EMULATE_PREPARES, false);
-    return $db;
-});
+Sv::db(
+    function () {
+        $db = new Pdo($_ENV['db_dsn'], $_ENV['db_username'], $_ENV['db_password']);
+        $db->setAttribute(Pdo::ATTR_EMULATE_PREPARES, false);
+        return $db;
+    }
+);
 
 $stdin = fopen('php://stdin', 'r');
 while ($line = fgets($stdin)) {
@@ -29,10 +41,12 @@ $stmt->execute([$room_id]);
 $data = $stmt->fetchAll(Pdo::FETCH_ASSOC)?:[];
 
 $data = array_reverse($data);
-$data = array_map(function($e){
-    $e['created'] = date('c', strtotime($e['created']));
-    return $e;
-}, $data);
+$data = array_map(
+    function ($e) {
+        $e['created'] = date('c', strtotime($e['created']));
+        return $e;
+    }, $data
+);
 
 $last_id = 0;
 foreach ($data as $msg) {
@@ -47,10 +61,12 @@ while (true) {
     $stmt->execute([$room_id, $last_id]);
     $data = $stmt->fetchAll(Pdo::FETCH_ASSOC)?:[];
     if ($data) {
-        $data = array_map(function($e){
-            $e['created'] = date('c', strtotime($e['created']));
-            return $e;
-        }, $data);
+        $data = array_map(
+            function ($e) {
+                $e['created'] = date('c', strtotime($e['created']));
+                return $e;
+            }, $data
+        );
         foreach ($data as $msg) {
             echo json_encode($msg),"\n";
             $last_id = $msg['id'];
