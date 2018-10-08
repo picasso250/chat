@@ -29,13 +29,12 @@ if (is_string($r)) {
 }
 
 function action_index(){
-    $_inner_ = ROOT_VIEW."/index.php";
     $rooms = Db::fetchAll("SELECT * from chat_room where id > 3 limit 100");
     if(isset($_GET['api'])) {
         echo json_encode($rooms);
         return;
     }
-    include ROOT_VIEW."/layout.php";
+    Res::render_with_layout(ROOT_VIEW."/layout.php", ['content'=>ROOT_VIEW."/index.php"], compact('rooms'));
 }
 function action_group(){
     if (isset($_GET['name'])) {
@@ -54,8 +53,7 @@ function action_group(){
     if (!isset($_GET['id'])) return("no id");
     $id = $_GET['id'];
     $g = Db::fetch("SELECT *from chat_room where `id`=? limit 1", [$id]);
-    $_inner_ = ROOT_VIEW."/group.php";
-    include ROOT_VIEW."/layout.php";
+    Res::render_with_layout(ROOT_VIEW."/layout.php", ['content'=>ROOT_VIEW."/group.php"], compact('id', 'g'));
 }
 function action_send_msg(){
     $db=Sv::db();
@@ -88,10 +86,7 @@ function action_pull_msg(){
     if(!isset($_GET['last_id']))return("no last_id");
     $group_id = $_GET['group_id'];
     $last_id = $_GET['last_id'];
-    $where = $last_id == "" ? "" : "AND id>?";
-    $para  = $last_id == "" ? [$group_id] : [$group_id,$last_id];
-    $asc   = $last_id == "" ? "DESC" : "ASC";
-    $sql = "SELECT * from chat where group_id=? $where ORDER BY id $asc limit 10";
+    list($para, $sql) = build_sql($last_id, $group_id);
     $stmt = $db->prepare($sql);
     for ($i=0; $i < 10; $i++) {
         $stmt->execute($para);
@@ -101,10 +96,34 @@ function action_pull_msg(){
     }
     if ($last_id=="")
         $data = array_reverse($data);
-    $data = array_map(function($e){
+    $data = proc_data($data);
+    $last_id = $data?$data[count($data)-1]['id']:'';
+    echo json_encode(compact('data', 'last_id'));
+}
+
+/**
+ * @param $last_id
+ * @param $group_id
+ * @return array
+ */
+function build_sql($last_id, $group_id)
+{
+    $where = $last_id == "" ? "" : "AND id>?";
+    $para = $last_id == "" ? [$group_id] : [$group_id, $last_id];
+    $asc = $last_id == "" ? "DESC" : "ASC";
+    $sql = "SELECT * from chat where group_id=? $where ORDER BY id $asc limit 10";
+    return array($para, $sql);
+}
+
+/**
+ * @param $data
+ * @return array
+ */
+function proc_data($data)
+{
+    $data = array_map(function ($e) {
         $e['created'] = date('c', strtotime($e['created']));
         return $e;
     }, $data);
-    $last_id = $data?$data[count($data)-1]['id']:'';
-    echo json_encode(compact('data', 'last_id'));
+    return $data;
 }

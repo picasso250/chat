@@ -135,3 +135,13 @@ class Db
         return $a;
     }
 }
+
+class Res
+{
+    static function render_with_layout($layout_tpl, $inner_tpl_list, $data = [])
+    {
+        $data['_inner_tpl_table'] = $inner_tpl_list;
+        extract($data);
+        include $layout_tpl;
+    }
+}

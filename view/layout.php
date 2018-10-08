@@ -18,7 +18,7 @@
 
 <body>
     <div class="content-wrap">
-        <?php include $_inner_; ?>
+        <?php include $_inner_tpl_table['content']; ?>
     </div>
 </body>
 </html>
