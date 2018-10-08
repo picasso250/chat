@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Magic class!
+ * Entry file
  * phpmd.phar . text codesize,design,unusedcode
  * phpcs . -n
  *
